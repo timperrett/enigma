@@ -5,7 +5,10 @@ name := "enigma"
 
 organization := "com.timperrett"
 
-libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0"
+libraryDependencies ++= Seq(
+  "org.scalaz" %% "scalaz-core" % "7.1.0",
+  "org.scalacheck" %% "scalacheck" % "1.11.6" % "test"
+)
 
 scalacOptions ++= Seq(
   "-deprecation",
