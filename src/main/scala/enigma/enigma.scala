@@ -1,31 +1,5 @@
 package enigma
 
-// import scalaz._, Scalaz._
-import scalaz.syntax.state._
-import scalaz.State, State._
-
-// some convenience as we are primarily working with letters A through Z.
-object Alphabet {
-  val ordered: Seq[Char] = ('A' to 'Z').toList
-
-  // compute length of the alphabet so that the code reads nicer and
-  // we're not doing .length all over the place. For syntax only.
-  val length: Int = ordered.length
-
-  // produce a randomly shuffled sequence of the alphabet.
-  def shuffled: Seq[Char] =
-    util.Random.shuffle(ordered).toList
-
-  def empty: Seq[Char] = Seq.empty
-
-  // imperitive, but it works. probally a better way.
-  def nextLetter(after: Char): Char = {
-    val i = ordered.indexOf(after)
-    if(i == (length-1) || i == -1) ordered.head
-    else ordered.apply(i+1)
-  }
-}
-
 /**
  * Here the signal is connected to the 'T' input on the plugboard. Some of
  * the letters on the plugboard will be wired up to other letters (the plugs),
@@ -57,34 +31,39 @@ case class Reflector(mapping: Map[Char,Char]){
 case class Rotor(
   outer: Contacts,
   inner: Contacts,
-  notch: Char
+  ring: Char, // the starting posistion the ring was set too
+  notch: Char // sometimes called ground setting
 ){
   def transform(c: Char): Char =
     outer.andThen(inner).apply(c)
 }
 
+import scalaz.syntax.state._
+import scalaz.State, State._
+
 object Rotor {
 
   // "install" the rotor with the given settings; these change based
   // on the setup the sender and reciever are using to encipher messages
-  def starting(at: Char, r: Rotor): State[Posistion, Rotor] =
+  def setup: State[Rotor, Rotor] =
     for {
       s <- init
-      _ <- modify((c: Posistion) => at)
+      x <- modify((z: Rotor) => z)
+      r <- get
     } yield r
 
   // this simulates the rotor actually moving along its states by a
   // single letter in the alphabet.
-  def step: State[Posistion, Rotor] => State[Posistion, Rotor] = s =>
+  def step(r: Rotor): State[Rotor, Rotor] =
     for {
-      r <- s
-      _ <- modify((c: Posistion) => Alphabet.nextLetter(c))
-    } yield r
+      _ <- modify((z: Rotor) => r.copy(ring = Alphabet.nextLetter(z.ring)))
+      n <- get
+    } yield n
 }
 
 case class Machine(
   plugboard: Plugboard,
-  static: Rotor,
+  // static: Rotor, // not sure if this is needed?
   right: Rotor,
   middle: Rotor,
   left: Rotor,
@@ -95,12 +74,14 @@ case class Machine(
 
 object Machine {
 
-  // def setup(m: Machine): State[Machine, Machine] =
-  //   for {
-  //     s <- init
-
-  //     // _ <- modify((m: Machine) => )
-  //   }
+  def setup(m: Machine): State[Machine, Machine] =
+    for {
+      s <- init
+      // r1 <- Rotor.setup(m.right)
+      // r2 <- Rotor.setup(m.middle)
+      // r3 <- Rotor.setup(m.left)
+      // _ <- modify((m: Machine) => )
+    } yield m
 
 
   def use(c: Char): Machine => Char = m =>
@@ -113,18 +94,34 @@ object Machine {
 ////////////////////////////////////// EXAMPLE //////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 
-// object Rotors {
-//   val I = Rotor(
-//     outer = identity,
-//     inner = identity,
-//     notch = 'O'
-//   )
-// }
+object Rotors {
+  val I = Rotor(
+    outer = identity,
+    inner = identity,
+    ring  = 'A',
+    notch = 'O'
+  )
+}
 
 object main extends App {
-  // import Rotors._
+  import Rotors._
 
   val p = Plugboard(Alphabet.shuffled)
+
+  val program = for {
+    r  <- Rotor.setup
+    d1 <- get
+    _  <- Rotor.step(r)
+    d2 <- get
+    // _  = println(d2)
+    _  <- Rotor.step(r)
+    d3 <- get
+    // _  = println(d3)
+  } yield d1 :: d2 :: d3 :: Nil
+
+  program.eval(I).zipWithIndex.foreach { case (v,i) =>
+    println(s"r$i - $v")
+  }
 
   // def powerup: State[Machine, Char] =
   //   for {
@@ -135,6 +132,6 @@ object main extends App {
 
   // val r = I :: I :: I :: Nil
 
-  println(s">>>>> $p")
+  // println(s">>>>> $p")
 
 }
