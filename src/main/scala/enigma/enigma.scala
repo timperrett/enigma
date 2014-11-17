@@ -45,20 +45,20 @@ object Rotor {
 
   // "install" the rotor with the given settings; these change based
   // on the setup the sender and reciever are using to encipher messages
-  def setup: State[Rotor, Rotor] =
-    for {
-      s <- init
-      x <- modify((z: Rotor) => z)
-      r <- get
-    } yield r
+  // def setup: State[Rotor, Rotor] =
+  //   for {
+  //     s <- init
+  //     x <- modify((z: Rotor) => z)
+  //     r <- get
+  //   } yield r
 
   // this simulates the rotor actually moving along its states by a
   // single letter in the alphabet.
-  def step(r: Rotor): State[Rotor, Rotor] =
-    for {
-      _ <- modify((z: Rotor) => r.copy(ring = Alphabet.nextLetter(z.ring)))
-      n <- get
-    } yield n
+  // def step(r: Rotor): State[Rotor, Rotor] =
+  //   for {
+  //     _ <- modify((z: Rotor) => r.copy(ring = Alphabet.nextLetter(z.ring)))
+  //     n <- get
+  //   } yield n
 }
 
 case class Machine(
@@ -68,11 +68,21 @@ case class Machine(
   middle: Rotor,
   left: Rotor,
   reflector: Reflector
-){
-
-}
+)
 
 object Machine {
+  import monocle.{Lenser,Lenses}
+
+  val lenserM = Lenser[Machine]
+  val rightL = lenserM(_.right)
+
+  val lenserR = Lenser[Rotor]
+  val ringL = lenserR(_.ring)
+
+  def foo(m: Machine) = {
+    import monocle.syntax._
+    m |-> rightL |-> ringL modify(_ => 'A')
+  }
 
   def setup(m: Machine): State[Machine, Machine] =
     for {
@@ -108,20 +118,20 @@ object main extends App {
 
   val p = Plugboard(Alphabet.shuffled)
 
-  val program = for {
-    r  <- Rotor.setup
-    d1 <- get
-    _  <- Rotor.step(r)
-    d2 <- get
-    // _  = println(d2)
-    _  <- Rotor.step(r)
-    d3 <- get
-    // _  = println(d3)
-  } yield d1 :: d2 :: d3 :: Nil
+  // val program = for {
+  //   r  <- Rotor.setup
+  //   d1 <- get
+  //   _  <- Rotor.step(r)
+  //   d2 <- get
+  //   // _  = println(d2)
+  //   _  <- Rotor.step(r)
+  //   d3 <- get
+  //   // _  = println(d3)
+  // } yield d1 :: d2 :: d3 :: Nil
 
-  program.eval(I).zipWithIndex.foreach { case (v,i) =>
-    println(s"r$i - $v")
-  }
+  // program.eval(I).zipWithIndex.foreach { case (v,i) =>
+  //   println(s"r$i - $v")
+  // }
 
   // def powerup: State[Machine, Char] =
   //   for {
