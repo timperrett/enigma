@@ -44,7 +44,7 @@ case class Reflector(table: String) extends WiringTable
 case class Rotor(
   table: String,
   offset: Char, // the posistion the alphabet ring is currently rotated too
-  ring: Char, // Ringstellung: posistion of the wiring relative to the offset
+  // ring: Char, // Ringstellung: posistion of the wiring relative to the offset
   notch: Char // sometimes called ground setting
 ) extends WiringTable {
 
@@ -137,10 +137,6 @@ object Machine {
 
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////// EXAMPLE //////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-
 // Actual configurations used by the Nazi's both before and during the war
 // from the Enigma I & M3 army/navy machines:
 // http://en.wikipedia.org/wiki/Enigma_rotor_details#Rotor_wiring_tables
@@ -177,6 +173,10 @@ object Reflectors {
   val B = Reflector("YRUHQSLDPXNGOKMIEBFZCWVJAT")
   val C = Reflector("FVPJIAOYEDRZXWGCTKUQSBNMHL")
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// EXAMPLE //////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 
 object main extends App {
   import Rotors._
