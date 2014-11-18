@@ -32,20 +32,29 @@ trait WiringTable {
 
   def transform(c: Char): Char =
     mapping(c) // throws an exception if invalid character; mappings should be total
+
 }
 
 // primary difference here is that `Reflector` has no notch, and is always configured
 // with symetric wiring tables. i.e. A -> Z, Z -> A. Reflectors also do not have
 // configurable rings; they were fixed and came in preset variants: A, B and C
+// Known as Umkehrwalze in german.
 case class Reflector(table: String) extends WiringTable
 
 case class Rotor(
   table: String,
-  ring: Char, // the starting posistion the ring was set too
+  offset: Char, // the posistion the alphabet ring is currently rotated too
+  ring: Char, // Ringstellung: posistion of the wiring relative to the offset
   notch: Char // sometimes called ground setting
 ) extends WiringTable {
+
+  // Where rotor I in the A-position normally encodes an A into an E,
+  // with a ring setting offset B it will be encoded into K
+  override def transform(c: Char): Char =
+    mapping(offset)
+
   def hasReachedNotch: Boolean =
-    notch == Alphabet.nextLetter(ring)
+    notch == Alphabet.nextLetter(offset)
 }
 
 import scalaz.syntax.state._
@@ -92,16 +101,16 @@ object Machine {
   val leftL = lenserM(_.left)
 
   val lenserR = Lenser[Rotor]
-  val rotorL: Lens[Rotor,Rotor,Char,Char] = lenserR(_.ring)
+  val rotorL: Lens[Rotor,Rotor,Char,Char] = lenserR(_.offset)
 
   def step(c: Char, l: RotorLens, f: Machine => Char => Char): State[Machine, Char] = {
     def update(rl: RotorLens)(m: Machine): Machine =
       m |-> rl |-> rotorL modify(Alphabet.nextLetter)
 
     for {
+      m <- get[Machine] // use the settings, then modify
       _ <- modify((m: Machine) => update(l)(m))
-      m <- get[Machine]
-      _  = println(s"right = ${m.right.ring}, middle = ${m.middle.ring}, left = ${m.left.ring}")
+      _  = println(s"right = ${m.right.offset}, middle = ${m.middle.offset}, left = ${m.left.offset}")
     } yield f(m)(c)
   }
 
@@ -137,29 +146,29 @@ object Machine {
 // http://en.wikipedia.org/wiki/Enigma_rotor_details#Rotor_wiring_tables
 object Rotors {
   def I(p: Char) = Rotor(
-    table = "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
-    notch = 'Q',
-    ring  = p
+    table  = "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
+    notch  = 'Q',
+    offset = p
   )
   def II(p: Char) = Rotor(
-    table = "AJDKSIRUXBLHWTMCQGZNPYFVOE",
-    notch = 'E',
-    ring  = p
+    table  = "AJDKSIRUXBLHWTMCQGZNPYFVOE",
+    notch  = 'E',
+    offset = p
   )
   def III(p: Char) = Rotor(
-    table = "BDFHJLCPRTXVZNYEIWGAKMUSQO",
-    notch = 'V',
-    ring  = p
+    table  = "BDFHJLCPRTXVZNYEIWGAKMUSQO",
+    notch  = 'V',
+    offset = p
   )
   def IV(p: Char) = Rotor(
-    table = "ESOVPZJAYQUIRHXLNFTGKDCMWB",
-    notch = 'J',
-    ring  = p
+    table  = "ESOVPZJAYQUIRHXLNFTGKDCMWB",
+    notch  = 'J',
+    offset = p
   )
   def V(p: Char) = Rotor(
-    table = "VZBRGITYUPSDNHLXAWMJQOFECK",
-    notch = 'Z',
-    ring  = p
+    table  = "VZBRGITYUPSDNHLXAWMJQOFECK",
+    notch  = 'Z',
+    offset = p
   )
 }
 
