@@ -20,23 +20,30 @@ case class Plugboard(shuffled: Seq[Char]){
     mapping.get(c).getOrElse(c)
 }
 
-// can generalise this as it seems to functionally do the same as `Plugboard`?
-// thinking this is primialry seperate in the machine itself because of wiring
-// and EE constraints of the real world?
-case class Reflector(mapping: Map[Char,Char]){
+// given a 26 char string, turn that into a resolvable table lookup
+trait WiringTable {
+  // stupid validation, but good enough.
+  assert(table.length == 26)
+
+  lazy val mapping: Map[Char,Char] =
+    table.zipWithIndex.map { case (c,i) => Alphabet.ordered(i) -> c }.toMap
+
+  def table: String
+
   def transform(c: Char): Char =
-    mapping.get(c).getOrElse(c)
+    mapping(c) // throws an exception if invalid character; mappings should be total
 }
 
+// primary difference here is that `Reflector` has no notch, and is always configured
+// with symetric wiring tables. i.e. A -> Z, Z -> A. Reflectors also do not have
+// configurable rings; they were fixed and came in preset variants: A, B and C
+case class Reflector(table: String) extends WiringTable
+
 case class Rotor(
-  outer: Contacts,
-  inner: Contacts,
+  table: String,
   ring: Char, // the starting posistion the ring was set too
   notch: Char // sometimes called ground setting
-){
-  def transform(c: Char): Char =
-    outer.andThen(inner).apply(c)
-
+) extends WiringTable {
   def hasReachedNotch: Boolean =
     notch == Alphabet.nextLetter(ring)
 }
@@ -87,44 +94,33 @@ object Machine {
   val lenserR = Lenser[Rotor]
   val rotorL: Lens[Rotor,Rotor,Char,Char] = lenserR(_.ring)
 
-  def step(c: Char, l: RotorLens): State[Machine, Char] = {
+  def step(c: Char, l: RotorLens, f: Machine => Char => Char): State[Machine, Char] = {
     def update(rl: RotorLens)(m: Machine): Machine =
       m |-> rl |-> rotorL modify(Alphabet.nextLetter)
 
     for {
       _ <- modify((m: Machine) => update(l)(m))
       m <- get[Machine]
-    } yield m.right.transform(c)
+      _  = println(s"right = ${m.right.ring}, middle = ${m.middle.ring}, left = ${m.left.ring}")
+    } yield f(m)(c)
   }
 
   def scramble(r0: Char): State[Machine, Char] =
     for {
-      r1 <- step(r0, rightL)
-      r2 <- step(r1, middleL)
-      r3 <- step(r2, leftL)
+      r1 <- step(r0, rightL, _.right.transform)
+      _   = println(s"r1 = $r1")
+
+      r2 <- step(r1, middleL, _.middle.transform)
+      _   = println(s"r2 = $r2")
+
+      r3 <- step(r2, leftL, _.left.transform)
+      _   = println(s"r3 = $r3")
     } yield r3
 
-  //   // rotorL.modify(c => Alphabet.nextLetter(c))
-  // }
-
-
-
-  // def scramble(r1: Rotor)  = {
-  //   // if(r1.hasReachedNotch)
-  //   //   ...
-  //   // else
-  //     r1.transform()
-  // }
-
-  // def setup(m: Machine): State[Machine, Machine] =
-  //   for {
-  //     s <- init
-  //     // r1 <- Rotor.setup(m.right)
-  //     // r2 <- Rotor.setup(m.middle)
-  //     // r3 <- Rotor.setup(m.left)
-  //     // _ <- modify((m: Machine) => )
-  //   } yield m
-
+  def foooo(c: Char): State[Machine, Char] =
+    for {
+      o1 <- scramble(c)
+    } yield o1
 
   // def use(c: Char): Machine => Char = m =>
   //   m.plugboard.transform(c) // |>
@@ -136,13 +132,41 @@ object Machine {
 ////////////////////////////////////// EXAMPLE //////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 
+// Actual configurations used by the Nazi's both before and during the war
+// from the Enigma I & M3 army/navy machines:
+// http://en.wikipedia.org/wiki/Enigma_rotor_details#Rotor_wiring_tables
 object Rotors {
-  val I = Rotor(
-    outer = identity,
-    inner = identity,
-    ring  = 'A',
-    notch = 'O'
+  def I(p: Char) = Rotor(
+    table = "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
+    notch = 'Q',
+    ring  = p
   )
+  def II(p: Char) = Rotor(
+    table = "AJDKSIRUXBLHWTMCQGZNPYFVOE",
+    notch = 'E',
+    ring  = p
+  )
+  def III(p: Char) = Rotor(
+    table = "BDFHJLCPRTXVZNYEIWGAKMUSQO",
+    notch = 'V',
+    ring  = p
+  )
+  def IV(p: Char) = Rotor(
+    table = "ESOVPZJAYQUIRHXLNFTGKDCMWB",
+    notch = 'J',
+    ring  = p
+  )
+  def V(p: Char) = Rotor(
+    table = "VZBRGITYUPSDNHLXAWMJQOFECK",
+    notch = 'Z',
+    ring  = p
+  )
+}
+
+object Reflectors {
+  val A = Reflector("EJMZALYXVBWFCRQUONTSPIKHGD")
+  val B = Reflector("YRUHQSLDPXNGOKMIEBFZCWVJAT")
+  val C = Reflector("FVPJIAOYEDRZXWGCTKUQSBNMHL")
 }
 
 object main extends App {
@@ -150,30 +174,22 @@ object main extends App {
 
   val p = Plugboard(Alphabet.shuffled)
 
-  // val program = for {
-  //   r  <- Rotor.setup
-  //   d1 <- get
-  //   _  <- Rotor.step(r)
-  //   d2 <- get
-  //   // _  = println(d2)
-  //   _  <- Rotor.step(r)
-  //   d3 <- get
-  //   // _  = println(d3)
-  // } yield d1 :: d2 :: d3 :: Nil
+  val m = Machine(
+    plugboard = p,
+    right = I('A'),
+    middle = II('A'),
+    left = III('A'),
+    reflector = Reflectors.B
+  )
 
-  // program.eval(I).zipWithIndex.foreach { case (v,i) =>
-  //   println(s"r$i - $v")
-  // }
+  // to make this work, gotta adjust the implementation of Rotor
+  // such that it actually makes use of the state of its ring when
+  // computing the next character
+  val exe: State[Machine,String] = for {
+    _ <- init
+    a <- Machine.foooo('A')
+    b <- Machine.foooo('A')
+  } yield s"a = $a, b = $b"
 
-  // def powerup: State[Machine, Char] =
-  //   for {
-  //     a <- init
-  //     _ <- modify((s: Machine) => s)
-  //     o <- get
-  //   } yield
-
-  // val r = I :: I :: I :: Nil
-
-  // println(s">>>>> $p")
-
+  exe.eval(m)
 }
