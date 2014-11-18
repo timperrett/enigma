@@ -36,6 +36,9 @@ case class Rotor(
 ){
   def transform(c: Char): Char =
     outer.andThen(inner).apply(c)
+
+  def hasReachedNotch: Boolean =
+    notch == Alphabet.nextLetter(ring)
 }
 
 import scalaz.syntax.state._
@@ -71,31 +74,60 @@ case class Machine(
 )
 
 object Machine {
-  import monocle.{Lenser,Lenses}
+  import monocle.{Lenser,Lenses,Lens}
+  import monocle.syntax._
+
+  type RotorLens = Lens[Machine, Machine, Rotor, Rotor]
 
   val lenserM = Lenser[Machine]
   val rightL = lenserM(_.right)
+  val middleL = lenserM(_.middle)
+  val leftL = lenserM(_.left)
 
   val lenserR = Lenser[Rotor]
-  val ringL = lenserR(_.ring)
+  val rotorL: Lens[Rotor,Rotor,Char,Char] = lenserR(_.ring)
 
-  def foo(m: Machine) = {
-    import monocle.syntax._
-    m |-> rightL |-> ringL modify(_ => 'A')
+  def step(c: Char, l: RotorLens): State[Machine, Char] = {
+    def update(rl: RotorLens)(m: Machine): Machine =
+      m |-> rl |-> rotorL modify(Alphabet.nextLetter)
+
+    for {
+      _ <- modify((m: Machine) => update(l)(m))
+      m <- get[Machine]
+    } yield m.right.transform(c)
   }
 
-  def setup(m: Machine): State[Machine, Machine] =
+  def scramble(r0: Char): State[Machine, Char] =
     for {
-      s <- init
-      // r1 <- Rotor.setup(m.right)
-      // r2 <- Rotor.setup(m.middle)
-      // r3 <- Rotor.setup(m.left)
-      // _ <- modify((m: Machine) => )
-    } yield m
+      r1 <- step(r0, rightL)
+      r2 <- step(r1, middleL)
+      r3 <- step(r2, leftL)
+    } yield r3
+
+  //   // rotorL.modify(c => Alphabet.nextLetter(c))
+  // }
 
 
-  def use(c: Char): Machine => Char = m =>
-    m.plugboard.transform(c) // |>
+
+  // def scramble(r1: Rotor)  = {
+  //   // if(r1.hasReachedNotch)
+  //   //   ...
+  //   // else
+  //     r1.transform()
+  // }
+
+  // def setup(m: Machine): State[Machine, Machine] =
+  //   for {
+  //     s <- init
+  //     // r1 <- Rotor.setup(m.right)
+  //     // r2 <- Rotor.setup(m.middle)
+  //     // r3 <- Rotor.setup(m.left)
+  //     // _ <- modify((m: Machine) => )
+  //   } yield m
+
+
+  // def use(c: Char): Machine => Char = m =>
+  //   m.plugboard.transform(c) // |>
 
 
 }
