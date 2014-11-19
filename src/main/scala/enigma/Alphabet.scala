@@ -20,4 +20,10 @@ object Alphabet {
     if(i == (length-1) || i == -1) ordered.head
     else ordered.apply(i+1)
   }
+
+  val stream: Stream[Char] = {
+    def go(c: Char): Stream[Char] =
+      c #:: go(Alphabet.nextLetter(c))
+    go('A')
+  }
 }

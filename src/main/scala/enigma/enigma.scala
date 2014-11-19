@@ -43,15 +43,19 @@ case class Reflector(table: String) extends WiringTable
 
 case class Rotor(
   table: String,
+  start: Char,
   offset: Char, // the posistion the alphabet ring is currently rotated too
-  // ring: Char, // Ringstellung: posistion of the wiring relative to the offset
-  notch: Char // sometimes called ground setting
+  ring: Char, // Ringstellung: posistion of the wiring relative to the offset
+  notch: Char // sometimes called ground setting?
 ) extends WiringTable {
 
   // Where rotor I in the A-position normally encodes an A into an E,
   // with a ring setting offset B it will be encoded into K
-  override def transform(c: Char): Char =
-    mapping(offset)
+  override def transform(c: Char): Char = {
+    val delta = (start to offset).tail.length
+    val input = Alphabet.stream.dropWhile(_ != c).drop(delta).head
+    mapping(input)
+  }
 
   def hasReachedNotch: Boolean =
     notch == Alphabet.nextLetter(offset)
@@ -144,26 +148,36 @@ object Rotors {
   def I(p: Char) = Rotor(
     table  = "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
     notch  = 'Q',
+    ring   = 'A',
+    start  = p,
     offset = p
   )
   def II(p: Char) = Rotor(
     table  = "AJDKSIRUXBLHWTMCQGZNPYFVOE",
     notch  = 'E',
+    ring   = 'A',
+    start  = p,
     offset = p
   )
   def III(p: Char) = Rotor(
     table  = "BDFHJLCPRTXVZNYEIWGAKMUSQO",
     notch  = 'V',
+    ring   = 'A',
+    start  = p,
     offset = p
   )
   def IV(p: Char) = Rotor(
     table  = "ESOVPZJAYQUIRHXLNFTGKDCMWB",
     notch  = 'J',
+    ring   = 'A',
+    start  = p,
     offset = p
   )
   def V(p: Char) = Rotor(
     table  = "VZBRGITYUPSDNHLXAWMJQOFECK",
     notch  = 'Z',
+    ring   = 'A',
+    start  = p,
     offset = p
   )
 }
