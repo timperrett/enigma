@@ -38,7 +38,6 @@ case class Rotor(
   notch: Char,
   posistion: Char // Grundstellung the posistion the alphabet ring is currently rotated too
 ){
-
   val forwardMapping: Seq[Char] = wiring.toSeq
   val reverseMapping: Seq[Char] = wiring.reverse.toSeq
   val ringAsInt: Int = ring + 'A'
@@ -61,8 +60,8 @@ case class Rotor(
   def reverse(c: Char): Char =
     encode(c, reverseMapping)
 
-  // def hasReachedNotch: Boolean =
-  //   notch == Alphabet.nextLetter(offset)
+  def hasReachedNotch: Boolean =
+    notch == posistion
 }
 
 import scalaz.syntax.state._
