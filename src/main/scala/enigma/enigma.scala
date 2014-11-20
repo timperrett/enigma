@@ -75,53 +75,53 @@ case class Machine(
   reflector: Reflector
 )
 
-// object Machine {
-//   import monocle.{Lenser,Lenses,Lens}
-//   import monocle.syntax._
+object Machine {
+  import monocle.{Lenser,Lenses,Lens}
+  import monocle.syntax._
 
-//   type RotorLens = Lens[Machine, Machine, Rotor, Rotor]
+  type RotorLens = Lens[Machine, Machine, Rotor, Rotor]
 
-//   val lenserM = Lenser[Machine]
-//   val rightL = lenserM(_.right)
-//   val middleL = lenserM(_.middle)
-//   val leftL = lenserM(_.left)
+  val lenserM = Lenser[Machine]
+  val rightL = lenserM(_.right)
+  val middleL = lenserM(_.middle)
+  val leftL = lenserM(_.left)
 
-//   val lenserR = Lenser[Rotor]
-//   val rotorL: Lens[Rotor,Rotor,Char,Char] = lenserR(_.offset)
+  val lenserR = Lenser[Rotor]
+  val rotorL: Lens[Rotor,Rotor,Char,Char] = lenserR(_.posistion)
 
-//   def step(c: Char, l: RotorLens, f: Machine => Char => Char): State[Machine, Char] = {
-//     def update(rl: RotorLens)(m: Machine): Machine =
-//       m |-> rl |-> rotorL modify(Alphabet.nextLetter)
+  def step(c: Char, l: RotorLens, f: Machine => Char => Char): State[Machine, Char] = {
+    def update(rl: RotorLens)(m: Machine): Machine =
+      m |-> rl |-> rotorL modify(Alphabet.nextLetter)
 
-//     for {
-//       m <- get[Machine] // use the settings, then modify
-//       _ <- modify((m: Machine) => update(l)(m))
-//       _  = println(s"right = ${m.right.offset}, middle = ${m.middle.offset}, left = ${m.left.offset}")
-//     } yield f(m)(c)
-//   }
+    for {
+      m <- get[Machine] // use the settings, then modify
+      _ <- modify((m: Machine) => update(l)(m))
+      _  = println(s"right = ${m.right.offset}, middle = ${m.middle.offset}, left = ${m.left.offset}")
+    } yield f(m)(c)
+  }
 
-//   def scramble(r0: Char): State[Machine, Char] =
-//     for {
-//       r1 <- step(r0, rightL, _.right.transform)
-//       _   = println(s"r1 = $r1")
+  def scramble(r0: Char): State[Machine, Char] =
+    for {
+      r1 <- step(r0, rightL, _.right.forward)
+      _   = println(s"r1 = $r1")
 
-//       r2 <- step(r1, middleL, _.middle.transform)
-//       _   = println(s"r2 = $r2")
+      r2 <- step(r1, middleL, _.middle.forward)
+      _   = println(s"r2 = $r2")
 
-//       r3 <- step(r2, leftL, _.left.transform)
-//       _   = println(s"r3 = $r3")
-//     } yield r3
+      r3 <- step(r2, leftL, _.left.forward)
+      _   = println(s"r3 = $r3")
+    } yield r3
 
-//   def foooo(c: Char): State[Machine, Char] =
-//     for {
-//       o1 <- scramble(c)
-//     } yield o1
+  def foooo(c: Char): State[Machine, Char] =
+    for {
+      o1 <- scramble(c)
+    } yield o1
 
-//   // def use(c: Char): Machine => Char = m =>
-//   //   m.plugboard.transform(c) // |>
+  // def use(c: Char): Machine => Char = m =>
+  //   m.plugboard.transform(c) // |>
 
 
-// }
+}
 
 // Actual configurations used by the Nazi's both before and during the war
 // from the Enigma I & M3 army/navy machines:
