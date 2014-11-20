@@ -26,19 +26,21 @@ object RotorSpec extends Properties("rotor") {
     // start = A, offset = A, ring = A
     val r1 = I('A')
     // start = A, offset = B, ring = A
-    val r2 = I('A').copy(offset = 'B')
+    val r2 = I('A').copy(posistion = 'B')
     // start = A, offset = A, ring = B
     val r3 = I('A').copy(ring = 'B')
 
-    val l = Reflectors.B
+    // l.transform('A') == 'Y' &&
+    // l.transform('Y') == 'A' &&
 
-    r1.transform('A') == 'E' &&
-    r1.transform('B') == 'K' &&
-    r1.transform('K') == 'N' &&
-    l.transform('A') == 'Y' &&
-    l.transform('Y') == 'A' &&
-    r2.transform('A') == 'K'
-    r3.transform('A') == 'K'
+    println(r1)
+    println(">>>>> " + r1.forward('A'))
+
+    r1.forward('A') == 'E' //&&
+    // r1.forward('B') == 'K' &&
+    // r1.forward('K') == 'N' //&&
+    // r2.forward('A') == 'K'
+    // r3.forward('A') == 'K'
   }
 
 
