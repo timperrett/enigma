@@ -15,11 +15,9 @@ object Alphabet {
 
   def empty: Seq[Char] = Seq.empty
 
-  // imperitive, but it works. probally a better way.
   def nextLetter(after: Char): Char = {
-    val i = ordered.indexOf(after)
-    if(i == (length-1) || i == -1) ordered.head
-    else ordered.apply(i+1)
+    if(after == 'Z') 'A'
+    else (after+1).toChar
   }
 
   // provide an infinite stream of alphabet letters that loops
