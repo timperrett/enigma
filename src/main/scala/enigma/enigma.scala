@@ -25,35 +25,46 @@ trait WiringTable {
   // stupid validation, but good enough.
   assert(table.length == 26)
 
-  lazy val mapping: Map[Char,Char] =
-    table.zipWithIndex.map { case (c,i) => Alphabet.ordered(i) -> c }.toMap
-
+  def mapping: Map[Char,Char]
   def table: String
+  def transform(c: Char): Char
 
-  def transform(c: Char): Char =
-    mapping(c) // throws an exception if invalid character; mappings should be total
-
+  protected def interleaveOrdered(t: String): Seq[(Char,Char)] =
+    t.zipWithIndex.map { case (c,i) => Alphabet.ordered(i) -> c }
 }
 
 // primary difference here is that `Reflector` has no notch, and is always configured
 // with symetric wiring tables. i.e. A -> Z, Z -> A. Reflectors also do not have
 // configurable rings; they were fixed and came in preset variants: A, B and C
 // Known as Umkehrwalze in german.
-case class Reflector(table: String) extends WiringTable
+case class Reflector(table: String) extends WiringTable {
+  val mapping: Map[Char,Char] =
+    interleaveOrdered(table).toMap
+
+  def transform(c: Char): Char =
+    mapping(c) // throws an exception if invalid character.
+}
 
 case class Rotor(
-  table: String,
-  start: Char,
+  table: String,  // the mapping of normal A->Z letters to its scrambled form
+  start: Char, // what posistion was the rotor when it was inserted to the machine
   offset: Char, // the posistion the alphabet ring is currently rotated too
   ring: Char, // Ringstellung: posistion of the wiring relative to the offset
-  notch: Char // sometimes called ground setting?
+  notch: Char
 ) extends WiringTable {
+
+  val mapping: Map[Char,Char] = {
+    val zipped: Seq[(Char,Char)] = interleaveOrdered(table)
+    val (selected,ignored) = zipped.span(_._1 < ring)
+    val mm = (zipped.drop(selected.length) ++ selected).foldLeft("")(_ + _._2)
+    interleaveOrdered(mm).toMap
+  }
 
   // Where rotor I in the A-position normally encodes an A into an E,
   // with a ring setting offset B it will be encoded into K
-  override def transform(c: Char): Char = {
-    val delta = (start to offset).tail.length
-    val input = Alphabet.stream.dropWhile(_ != c).drop(delta).head
+  def transform(c: Char): Char = {
+    val delta: Int = (start to offset).tail.length
+    val input: Char = Alphabet.stream.dropWhile(_ != c).drop(delta).head
     mapping(input)
   }
 
@@ -63,26 +74,6 @@ case class Rotor(
 
 import scalaz.syntax.state._
 import scalaz.State, State._
-
-object Rotor {
-
-  // "install" the rotor with the given settings; these change based
-  // on the setup the sender and reciever are using to encipher messages
-  // def setup: State[Rotor, Rotor] =
-  //   for {
-  //     s <- init
-  //     x <- modify((z: Rotor) => z)
-  //     r <- get
-  //   } yield r
-
-  // this simulates the rotor actually moving along its states by a
-  // single letter in the alphabet.
-  // def step(r: Rotor): State[Rotor, Rotor] =
-  //   for {
-  //     _ <- modify((z: Rotor) => r.copy(ring = Alphabet.nextLetter(z.ring)))
-  //     n <- get
-  //   } yield n
-}
 
 case class Machine(
   plugboard: Plugboard,

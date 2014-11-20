@@ -2,6 +2,7 @@ package enigma
 
 // some convenience as we are primarily working with letters A through Z.
 object Alphabet {
+  // a single sequence of A to Z letters, 26 chars long
   val ordered: Seq[Char] = ('A' to 'Z').toList
 
   // compute length of the alphabet so that the code reads nicer and
@@ -21,6 +22,8 @@ object Alphabet {
     else ordered.apply(i+1)
   }
 
+  // provide an infinite stream of alphabet letters that loops
+  // around A -> Z -> A -> Z etc
   val stream: Stream[Char] = {
     def go(c: Char): Stream[Char] =
       c #:: go(Alphabet.nextLetter(c))
