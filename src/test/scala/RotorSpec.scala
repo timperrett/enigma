@@ -33,14 +33,11 @@ object RotorSpec extends Properties("rotor") {
     // l.transform('A') == 'Y' &&
     // l.transform('Y') == 'A' &&
 
-    println(r1)
-    println(">>>>> " + r1.forward('A'))
-
-    r1.forward('A') == 'E' //&&
-    // r1.forward('B') == 'K' &&
-    // r1.forward('K') == 'N' //&&
-    // r2.forward('A') == 'K'
-    // r3.forward('A') == 'K'
+    r1.forward('A') == 'E' &&
+    r1.forward('B') == 'K' &&
+    r1.forward('K') == 'N' &&
+    r2.forward('A') == 'J' &&
+    r3.forward('A') == 'K'
   }
 
 
