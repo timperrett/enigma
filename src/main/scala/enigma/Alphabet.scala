@@ -24,7 +24,7 @@ object Alphabet {
   // around A -> Z -> A -> Z etc
   val stream: Stream[Char] = {
     def go(c: Char): Stream[Char] =
-      c #:: go(Alphabet.nextLetter(c))
+      c #:: go(nextLetter(c))
     go('A')
   }
 }
