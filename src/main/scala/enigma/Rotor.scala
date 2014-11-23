@@ -6,8 +6,14 @@ case class Rotor(
   notch: Char,
   posistion: Char // Grundstellung the posistion the alphabet ring is currently rotated too
 ){
-  val forwardMapping: Seq[Char] = wiring.toSeq
-  val reverseMapping: Seq[Char] = wiring.reverse.toSeq
+
+  val chars: Seq[Char] = wiring.toUpperCase.toSeq
+
+  val forwardMapping: Seq[Char] = chars
+  val reverseMapping: Seq[Char] = wiring.toSeq.zipWithIndex.map {
+    case (a,i) => (chars(i) - 'A') -> ('A' + i).toChar
+  }.sortBy(_._1).map(_._2).toSeq
+
   val ringAsInt: Int = ring + 'A'
   val posistionAsInt: Int = 'A' + posistion
   val offset: Int = posistionAsInt - ringAsInt
@@ -17,9 +23,12 @@ case class Rotor(
     (size + (c - 'A') + offset) % size
 
   private def encode(c: Char, w: Seq[Char]): Char = {
+    println(s">=== $c ===<")
     val adjustment = adjust(c)
-    val resultOffset = (size + forwardMapping(adjustment) - 'A' - offset) % size
-    ('A' + resultOffset).toChar
+    val resultOffset = (size + w(adjustment) - 'A' - offset) % size
+    val output = ('A' + resultOffset).toChar
+    println(s"<=== $output ===>")
+    output
   }
 
   def forward(c: Char): Char =

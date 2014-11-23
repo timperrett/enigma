@@ -10,6 +10,7 @@ case class Machine(
   left: Rotor,
   reflector: Reflector
 ){
+  // syntax for state monad application
   def use(c: Char): Char =
     Machine.use(c).eval(this)
 }
@@ -33,25 +34,26 @@ object Machine {
       m |-> rl |-> rotorL modify(Alphabet.nextLetter)
 
     for {
-      m <- get[Machine] // use the settings, then modify
+      _ <- get[Machine] // use the settings, then modify
       _ <- modify((m: Machine) => update(l)(m))
+      m <- get[Machine]
       _  = println(s"right = ${m.right.offset}, middle = ${m.middle.offset}, left = ${m.left.offset}")
     } yield f(m)(c)
   }
 
-  def forward(r0: Char): State[Machine, Char] =
+  private[enigma] def forward(r0: Char): State[Machine, Char] =
     for {
       r1 <- step(r0, rightL, _.right.forward)
-      _   = println(s"r1 = $r1")
+      _   = println(s"f1 = $r1")
 
       r2 <- step(r1, middleL, _.middle.forward)
-      _   = println(s"r2 = $r2")
+      _   = println(s"f2 = $r2")
 
       r3 <- step(r2, leftL, _.left.forward)
-      _   = println(s"r3 = $r3")
+      _   = println(s"f3 = $r3")
     } yield r3
 
-  def reverse(r0: Char): State[Machine, Char] =
+  private[enigma] def reverse(r0: Char): State[Machine, Char] =
     for {
       r1 <- step(r0, leftL, _.left.forward)
       _   = println(s"r1 = $r1")
@@ -63,31 +65,24 @@ object Machine {
       _   = println(s"r3 = $r3")
     } yield r3
 
-  def use(c: Char): State[Machine, Char] =
+  def scramble(c0: Char): State[Machine,Char] =
+    for {
+      a <- forward(c0)
+      _  = println("1 ::: " + a)
+
+      m <- get[Machine]
+      b <- state(m.reflector.transform(a))
+      _  = println("2 ::: " + b)
+
+      c <- reverse(b)
+      _  = println("3 ::: " + c)
+    } yield c
+
+  def use(c0: Char): State[Machine, Char] =
     for {
       m <- get[Machine]
-      b <- state(m.plugboard.transform(c))
-      c <- forward(c)
-      d <- state(m.reflector.transform(c))
-      e <- reverse(d)
-      f <- state(m.plugboard.transform(c))
-    } yield f
+      a <- state(m.plugboard.transform(c0))
+      b <- scramble(a)
+      c <- state(m.plugboard.transform(b))
+    } yield c
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////// EXAMPLE //////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-
-// object main extends App {
-//   
-//   // to make this work, gotta adjust the implementation of Rotor
-//   // such that it actually makes use of the state of its ring when
-//   // computing the next character
-//   val exe: State[Machine,String] = for {
-//     _ <- init
-//     a <- Machine.foooo('A')
-//     b <- Machine.foooo('A')
-//   } yield s"a = $a, b = $b"
-
-//   exe.eval(m)
-// }

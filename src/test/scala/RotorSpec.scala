@@ -6,15 +6,7 @@ import Prop._
 object RotorSpec extends Properties("rotor") {
   import Rotors._
 
-  val p = Plugboard(Alphabet.shuffled)
-
-  val m1 = Machine(
-    plugboard = p,
-    right = I('A'),
-    middle = II('A'),
-    left = III('A'),
-    reflector = Reflectors.B
-  )
+  //////////////////////// SINGLE ROTOR ///////////////////////////
 
   /**
    * When a rotor has stepped, you must take into account the offset to know what
@@ -30,16 +22,25 @@ object RotorSpec extends Properties("rotor") {
     // start = A, offset = A, ring = B
     val r3 = I('A').copy(ring = 'B')
 
-    // l.transform('A') == 'Y' &&
-    // l.transform('Y') == 'A' &&
+    val a1 = III('A')
+    val a2 = II('A')
+    val a3 = I('A')
+
+    a1.forward('A') == 'B' &&
+    a2.forward('B') == 'J' &&
+    a3.forward('J') == 'Z' &&
+    // reflector B changes Z -> T
+    a3.reverse('T') == 'L' &&
+    a2.reverse('L') == 'K' &&
+    a1.reverse('K') == 'U'
 
     r1.forward('A') == 'E' &&
     r1.forward('B') == 'K' &&
     r1.forward('K') == 'N' &&
     r2.forward('A') == 'J' &&
     r3.forward('A') == 'K'
-  }
 
+  }
 
 }
 
