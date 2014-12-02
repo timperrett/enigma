@@ -14,18 +14,14 @@ object MachineSpec extends Properties("machine"){
     reflector = Reflectors.B
   )
 
-  import scalaz.syntax.state._
-  import scalaz.State, State._
-
-  implicit class syntax(s: State[Machine,Char]){
-    def gogogo: Char =
-      s.eval(e1)
-  }
-
   property("full scramble") = secure {
     // println(">> "+ Machine.forward('K').gogogo)
 
-    println("{{{ " + Machine.rotorL.asGetter)
+    // println("{{{ " + Machine.rotorL.asGetter)
+
+    println {
+      e1.use('A')
+    }
 
     true
   }

@@ -36,9 +36,6 @@ case class Rotor(
 
   def reverse(c: Char): Char =
     encode(c, reverseMapping)
-
-  def hasReachedNotch: Boolean =
-    notch == posistion
 }
 
 // Actual configurations used by the Nazi's both before and during the war
