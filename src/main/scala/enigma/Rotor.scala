@@ -2,7 +2,7 @@ package enigma
 
 case class Rotor(
   wiring: String,  // the mapping of normal A->Z letters to its scrambled form
-  ring: Char = 'A', // Ringstellung: posistion of the wiring relative to the offset
+  ring: Char = 'A', // Ringstellung: offset of the wiring relative to the posistion
   notch: Char,
   posistion: Char // Grundstellung the posistion the alphabet ring is currently rotated too
 ){

@@ -23,7 +23,10 @@ object MachineSpec extends Properties("machine"){
   }
 
   property("full scramble") = secure {
-    println(">> "+ Machine.forward('K').gogogo)
+    // println(">> "+ Machine.forward('K').gogogo)
+
+    println("{{{ " + Machine.rotorL.asGetter)
+
     true
   }
 }
