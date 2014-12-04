@@ -15,8 +15,6 @@ object Machine {
   import monocle.{Lenser,Lenses,Lens}
   import monocle.syntax._
 
-  type MachineLens = Lens[Machine, Machine, Rotor, Rotor]
-
   val lenserM = Lenser[Machine]
   val rightL = lenserM(_.right)
   val middleL = lenserM(_.middle)
@@ -25,10 +23,10 @@ object Machine {
   val lenserR = Lenser[Rotor]
   val rotorL: Lens[Rotor,Rotor,Char,Char] = lenserR(_.posistion)
 
-  def rtl(m: Machine)(c: Char): Char =
+  private[enigma] def rtl(m: Machine)(c: Char): Char =
     m.right.forward _ andThen m.middle.forward andThen m.left.forward apply(c)
 
-  def ltr(m: Machine)(c: Char): Char =
+  private[enigma] def ltr(m: Machine)(c: Char): Char =
     m.left.reverse _ andThen m.middle.reverse andThen m.right.reverse apply(c)
 
   def run(c: Char): State[Machine, Char] = {
@@ -66,6 +64,11 @@ object Machine {
     import scalaz.std.vector._
     import scalaz.syntax.traverse._
     def use(c: Char*): String =
-      c.toVector.traverseU(run).map(_.mkString).eval(m)
+      c.toVector
+        .map(Character.toUpperCase)
+        .filter(x => Alphabet.ordered.contains(x))
+        .traverseU(run)
+        .map(_.mkString.grouped(4).mkString(" "))
+        .eval(m)
   }
 }

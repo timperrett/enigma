@@ -16,7 +16,10 @@ case class Plugboard(shuffled: Seq[Char]){
     shuffled.splitAt(Alphabet.length / 2
       ).zipped.flatMap((a,b) => Seq(a -> b, b -> a)).toMap
 
-  def transform(c: Char): Char =
-    mapping.get(c).getOrElse(c)
+  def transform(c: Char): Char = {
+    // println("::::::::>> " + c)
+    val out = mapping.get(c).getOrElse(c)
+    // println("<<:::::::: " + out)
+    out
+  }
 }
-

@@ -23,11 +23,11 @@ case class Rotor(
     (size + (c - 'A') + offset) % size
 
   private def encode(c: Char, w: Seq[Char]): Char = {
-    println(s">=== $c ===<")
+    // println(s">=== $c ===<")
     val adjustment = adjust(c)
     val resultOffset = (size + w(adjustment) - 'A' - offset) % size
     val output = ('A' + resultOffset).toChar
-    println(s"<=== $output ===>")
+    // println(s"<=== $output ===>")
     output
   }
 
@@ -44,31 +44,31 @@ case class Rotor(
 object Rotors {
   def I(p: Char) = Rotor(
     wiring  = "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
-    notch  = 'Q',
+    notch  = 'R',
     ring   = 'A',
     posistion = p
   )
   def II(p: Char) = Rotor(
     wiring  = "AJDKSIRUXBLHWTMCQGZNPYFVOE",
-    notch  = 'E',
+    notch  = 'F',
     ring   = 'A',
     posistion = p
   )
   def III(p: Char) = Rotor(
     wiring  = "BDFHJLCPRTXVZNYEIWGAKMUSQO",
-    notch  = 'V',
+    notch  = 'W',
     ring   = 'A',
     posistion = p
   )
   def IV(p: Char) = Rotor(
     wiring  = "ESOVPZJAYQUIRHXLNFTGKDCMWB",
-    notch  = 'J',
+    notch  = 'K',
     ring   = 'A',
     posistion = p
   )
   def V(p: Char) = Rotor(
     wiring  = "VZBRGITYUPSDNHLXAWMJQOFECK",
-    notch  = 'Z',
+    notch  = 'A',
     ring   = 'A',
     posistion = p
   )
