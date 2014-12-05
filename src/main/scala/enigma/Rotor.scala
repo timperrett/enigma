@@ -4,7 +4,7 @@ case class Rotor(
   wiring: String,  // the mapping of normal A->Z letters to its scrambled form
   ring: Char = 'A', // Ringstellung: offset of the wiring relative to the posistion
   notch: Char,
-  posistion: Char // Grundstellung the posistion the alphabet ring is currently rotated too
+  position: Char // Grundstellung the position the alphabet ring is currently rotated too
 ){
 
   val chars: Seq[Char] = wiring.toUpperCase.toSeq
@@ -15,7 +15,7 @@ case class Rotor(
   }.sortBy(_._1).map(_._2).toSeq
 
   val ringAsInt: Int = ring + 'A'
-  val posistionAsInt: Int = 'A' + posistion
+  val posistionAsInt: Int = 'A' + position
   val offset: Int = posistionAsInt - ringAsInt
   val size = wiring.length
 
@@ -46,30 +46,30 @@ object Rotors {
     wiring  = "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
     notch  = 'R',
     ring   = 'A',
-    posistion = p
+    position = p
   )
   def II(p: Char) = Rotor(
     wiring  = "AJDKSIRUXBLHWTMCQGZNPYFVOE",
     notch  = 'F',
     ring   = 'A',
-    posistion = p
+    position = p
   )
   def III(p: Char) = Rotor(
     wiring  = "BDFHJLCPRTXVZNYEIWGAKMUSQO",
     notch  = 'W',
     ring   = 'A',
-    posistion = p
+    position = p
   )
   def IV(p: Char) = Rotor(
     wiring  = "ESOVPZJAYQUIRHXLNFTGKDCMWB",
     notch  = 'K',
     ring   = 'A',
-    posistion = p
+    position = p
   )
   def V(p: Char) = Rotor(
     wiring  = "VZBRGITYUPSDNHLXAWMJQOFECK",
     notch  = 'A',
     ring   = 'A',
-    posistion = p
+    position = p
   )
 }

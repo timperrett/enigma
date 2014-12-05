@@ -21,7 +21,7 @@ object Machine {
   val leftL = lenserM(_.left)
 
   val lenserR = Lenser[Rotor]
-  val rotorL: Lens[Rotor,Rotor,Char,Char] = lenserR(_.posistion)
+  val rotorL: Lens[Rotor,Rotor,Char,Char] = lenserR(_.position)
 
   private[enigma] def rtl(m: Machine)(c: Char): Char =
     m.right.forward _ andThen m.middle.forward andThen m.left.forward apply(c)
@@ -38,12 +38,12 @@ object Machine {
 
     def middle(m: Machine): Machine =
       m |-> middleL modify(r =>
-        if(m.right.notch == r.posistion || m.left.notch == r.posistion) stepRotor(r)
+        if(m.right.notch == r.position || m.left.notch == r.position) stepRotor(r)
         else r)
 
     def left(m: Machine): Machine =
       m |-> leftL modify(r =>
-        if(r.posistion == m.middle.notch) stepRotor(r)
+        if(r.position == m.middle.notch) stepRotor(r)
         else r)
 
     for {
