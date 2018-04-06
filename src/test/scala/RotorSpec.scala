@@ -18,7 +18,7 @@ object RotorSpec extends Properties("rotor") {
     // start = A, offset = A, ring = A
     val r1 = I('A')
     // start = A, offset = B, ring = A
-    val r2 = I('A').copy(posistion = 'B')
+    val r2 = I('A').copy(position = 'B')
     // start = A, offset = A, ring = B
     val r3 = I('A').copy(ring = 'B')
 
