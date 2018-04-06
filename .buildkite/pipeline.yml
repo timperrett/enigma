@@ -1,9 +1,6 @@
 steps:
+  - command: curl -Ls https://git.io/sbt > ~/bin/sbt && chmod 0755 ~/bin/sbt
   - command: |
-      sbt coverage test coverageReport && \
+      ~/bin/sbt coverage test coverageReport && \
       bash <(curl -s https://codecov.io/bash) -t 5cec588e-3b45-4793-acda-74a5075b4c9d
-    plugins:
-      docker#v1.1.1:
-        image: bigtruedata/sbt
-        workdir: /app
     artifact_paths: "target/**/*.jar"
