@@ -1,6 +1,6 @@
 steps:
-  - command: curl -L https://git.io/sbt
   - command: |
-      ~/bin/sbt coverage test coverageReport && \
+      curl -Ls https://git.io/sbt > $HOME/bin/sbt && chmod 0755 $HOME/bin/sbt && \
+      $HOME/bin/sbt coverage test coverageReport && \
       bash <(curl -s https://codecov.io/bash) -t 5cec588e-3b45-4793-acda-74a5075b4c9d
     artifact_paths: "target/**/*.jar"
