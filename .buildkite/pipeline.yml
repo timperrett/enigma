@@ -9,4 +9,6 @@ steps:
         image: bigtruedata/sbt
         workdir: /app
   - wait
-  - command: bash <(curl -s https://codecov.io/bash) -t 5cec588e-3b45-4793-acda-74a5075b4c9d
+  - command: |
+      buildkite-agent artifact download "target/*" target/ && \
+      bash <(curl -s https://codecov.io/bash) -t 5cec588e-3b45-4793-acda-74a5075b4c9d
