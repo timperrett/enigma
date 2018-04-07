@@ -4,7 +4,7 @@ case class Rotor(
   wiring: String,  // the mapping of normal A->Z letters to its scrambled form
   ring: Char = 'A', // Ringstellung: offset of the wiring relative to the posistion
   notch: Char,
-  position: Char // Grundstellung the position the alphabet ring is currently rotated too
+  position: Char // Grundstellung: the position the alphabet ring is currently rotated too
 ){
 
   val chars: Seq[Char] = wiring.toUpperCase.toSeq
