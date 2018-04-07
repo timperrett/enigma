@@ -2,7 +2,7 @@ steps:
   - label: ":hammer_and_wrench: build + test"
     command: sbt coverage test coverageReport
     plugins:
-      github.com/buildkite-plugins/docker-buildkite-plugin#v1.1.1:
+      docker#v1.1.1:
         debug: true
         image: bigtruedata/sbtx
         workdir: /app
