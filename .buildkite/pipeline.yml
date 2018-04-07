@@ -7,6 +7,7 @@ steps:
       - target/scala-2.11/coverage-report/cobertura.xml
     plugins:
       docker#v1.1.1:
+        debug: true
         image: bigtruedata/sbtx
         workdir: /app
   - wait
