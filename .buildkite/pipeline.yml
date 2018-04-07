@@ -10,5 +10,5 @@ steps:
         workdir: /app
   - wait
   - command: |
-      buildkite-agent artifact download "target/*" target/ && \
+      buildkite-agent artifact download "target/*" . && \
       bash <(curl -s https://codecov.io/bash) -t 5cec588e-3b45-4793-acda-74a5075b4c9d
