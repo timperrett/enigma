@@ -1,5 +1,6 @@
 steps:
-  - command: sbt coverage test coverageReport
+  - label: ":hammer_and_wrench: build + test"
+    command: sbt coverage test coverageReport
     artifact_paths:
       - target/scala-2.11/scoverage-report/scoverage.xml
       - target/scala-2.11/scoverage-data/scoverage.coverage.xml
@@ -9,6 +10,7 @@ steps:
         image: bigtruedata/sbt
         workdir: /app
   - wait
-  - command: |
+  - label: ":mag: coverage report"
+    command: |
       buildkite-agent artifact download "target/*" . && \
       bash <(curl -s https://codecov.io/bash) -t 5cec588e-3b45-4793-acda-74a5075b4c9d
