@@ -1,11 +1,10 @@
 steps:
   - command: |
-      jdk_switcher use oraclejdk8 && \
-      $HOME/bin/sbt coverage test coverageReport && \
-      bash <(curl -s https://codecov.io/bash) -t 5cec588e-3b45-4793-acda-74a5075b4c9d
-    artifact_paths: "target/**/*.jar"
+      sbt coverage test coverageReport
+    artifact_paths: "target/**/*.xml"
     plugins:
       docker#v1.1.1:
-        image: "quay.io/travisci/travis-jvm:latest"
-        workdir: /home/travis
-        user: travis
+        image: bigtruedata/sbt
+        workdir: /app
+  - wait
+  - command: bash <(curl -s https://codecov.io/bash) -t 5cec588e-3b45-4793-acda-74a5075b4c9d
