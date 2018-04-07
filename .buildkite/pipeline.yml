@@ -1,7 +1,9 @@
 steps:
-  - command: |
-      sbt coverage test coverageReport
-    artifact_paths: target/**/**/*.xml
+  - command: sbt coverage test coverageReport
+    artifact_paths:
+      - target/scala-2.11/scoverage-report/scoverage.xml
+      - target/scala-2.11/scoverage-data/scoverage.coverage.xml
+      - target/scala-2.11/coverage-report/cobertura.xml
     plugins:
       docker#v1.1.1:
         image: bigtruedata/sbt
