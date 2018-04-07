@@ -7,7 +7,7 @@ steps:
       - target/scala-2.11/coverage-report/cobertura.xml
     plugins:
       docker#v1.1.1:
-        image: bigtruedata/sbt
+        image: bigtruedata/sbtx
         workdir: /app
   - wait
   - label: ":mag: coverage report"
