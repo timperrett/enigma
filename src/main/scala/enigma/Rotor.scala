@@ -6,7 +6,6 @@ case class Rotor(
   notch: Char,
   position: Char // Grundstellung: the position the alphabet ring is currently rotated too
 ){
-
   val chars: Seq[Char] = wiring.toUpperCase.toSeq
 
   val forwardMapping: Seq[Char] = chars
