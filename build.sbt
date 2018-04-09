@@ -1,5 +1,5 @@
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.7"
 
 name := "enigma"
 
