@@ -1,6 +1,6 @@
 steps:
   - label: ":hammer_and_wrench: build + test"
-    command: sbt coverage test coverageReport
+    command: /usr/local/bin/sbt coverage test coverageReport
     plugins:
       docker#v1.1.1:
         debug: true
