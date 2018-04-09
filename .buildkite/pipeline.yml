@@ -3,10 +3,9 @@ steps:
     command: /usr/local/bin/sbt coverage test coverageReport
     plugins:
       docker#v1.1.1:
-        debug: true
-        image: quay.io/travisci/travis-jvm:latest
-        workdir: /home/travis
-        user: travis
+        debug: false
+        image: bigtruedata/sbt
+        workdir: /app
     artifact_paths:
       - target/scala-2.11/scoverage-report/scoverage.xml
       - target/scala-2.11/scoverage-data/scoverage.coverage.xml
