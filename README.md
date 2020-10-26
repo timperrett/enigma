@@ -1,6 +1,5 @@
 # Enigma Machine (in Scala)
 
-[![Build status](https://badge.buildkite.com/7224e26dcd45b12523908dd0fe795ac4acb8ceec714b4730ae.svg)](https://buildkite.com/house-of-perrett/timperrett-slash-enigma)
 [![codecov](https://codecov.io/gh/timperrett/enigma/branch/master/graph/badge.svg)](https://codecov.io/gh/timperrett/enigma)
 
 German [enigma machine](http://en.wikipedia.org/wiki/Enigma_machine) implemented with pure functional programming in Scala.
